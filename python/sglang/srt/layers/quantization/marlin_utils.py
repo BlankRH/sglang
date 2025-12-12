@@ -493,6 +493,7 @@ def apply_gptq_marlin_linear(
             reshaped_x,
             None,
             weight,
+            bias,
             weight_scale,
             None,
             weight_zp,
@@ -513,6 +514,7 @@ def apply_gptq_marlin_linear(
             input=reshaped_x,
             weight=weight,
             weight_scale=weight_scale,
+            bias=bias,
             weight_zp=weight_zp,
             g_idx=g_idx,
             g_idx_sort_indices=g_idx_sort_indices,
@@ -525,9 +527,6 @@ def apply_gptq_marlin_linear(
             use_fp32_reduce=use_fp32_reduce,
             is_zp_float=False,
         )
-
-    if bias is not None:
-        output.add_(bias)  # In-place add
 
     return output.reshape(out_shape)
 
@@ -563,6 +562,7 @@ def apply_awq_marlin_linear(
             reshaped_x,
             None,
             weight,
+            bias,
             weight_scale,
             None,
             weight_zp,
@@ -581,6 +581,7 @@ def apply_awq_marlin_linear(
         output = torch.ops.sglang.unified_apply_gptq_marlin_gemm(
             input=reshaped_x,
             weight=weight,
+            bias=bias,
             weight_scale=weight_scale,
             weight_zp=weight_zp,
             g_idx=g_idx,
@@ -592,9 +593,6 @@ def apply_awq_marlin_linear(
             use_fp32_reduce=use_fp32_reduce,
             is_zp_float=False,
         )
-
-    if bias is not None:
-        output.add_(bias)  # In-place add
 
     return output.reshape(out_shape)
 
@@ -863,6 +861,7 @@ class MarlinLinearMethod(LinearMethodBase):
 def unified_apply_gptq_marlin_gemm(
     input: torch.Tensor,
     weight: torch.Tensor,
+    bias: Optional[torch.Tensor],
     weight_scale: torch.Tensor,
     weight_zp: torch.Tensor,
     g_idx: torch.Tensor,
@@ -880,6 +879,7 @@ def unified_apply_gptq_marlin_gemm(
         input,
         None,
         weight,
+        bias,
         weight_scale,
         None,
         weight_zp,
@@ -926,6 +926,7 @@ direct_register_custom_op(
 def unified_apply_gptq_marlin_gemm_with_wtype(
     input: torch.Tensor,
     weight: torch.Tensor,
+    bias: Optional[torch.Tensor],
     weight_scale: torch.Tensor,
     weight_zp: torch.Tensor,
     g_idx: torch.Tensor,
@@ -951,6 +952,7 @@ def unified_apply_gptq_marlin_gemm_with_wtype(
         input,
         None,
         weight,
+        bias,
         weight_scale,
         None,
         weight_zp,

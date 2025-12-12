@@ -88,6 +88,7 @@ def test_gptq_marlin_gemm(
         a_input,
         None,
         marlin_q_w,
+        None,
         marlin_s,
         marlin_s2,
         marlin_zp,
